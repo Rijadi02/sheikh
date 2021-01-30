@@ -1,0 +1,17 @@
+episodes/
+episodes/{episode}
+episodes/{episode}/activity
+
+series/
+series/{serie}
+series/{serie}/activity
+series/{serie}/episodes/
+
+categories/
+categories/{category}
+categories/{category}/series/
+
+speakers/
+speakers/{speaker}
+speakers/{speaker}/activity
+speakers/{speaker}/series/
