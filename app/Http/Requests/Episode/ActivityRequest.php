@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Episode;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SpeakerRequest extends FormRequest
+class ActivityRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class SpeakerRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,9 +24,9 @@ class SpeakerRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required",
-            "bio" => "required|max:250",
-            "image" => "required"
+            "history" => "integer|between:0,1",
+            "download" => "integer|between:0,1",
+            "watch_later" => "integer|between:0,1"
         ];
     }
 }

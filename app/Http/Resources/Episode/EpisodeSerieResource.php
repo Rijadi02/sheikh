@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Resources\Speaker;
+namespace App\Http\Resources\Episode;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SpeakerCollection extends JsonResource
+class EpisodeSerieResource extends JsonResource
 {
     /**
-     * Transform the resource collection into an array.
+     * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array
@@ -16,8 +16,11 @@ class SpeakerCollection extends JsonResource
     {
         return [
             'id' => $this->id,
+            'number' => $this->number,
             'name' => $this->name,
-            'image' => $this->image
+            'created_at' => $this->created_at,
+            'file_length' => $this->file_length,
+            'activity' => null,
         ];
     }
 }

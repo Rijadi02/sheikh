@@ -3,9 +3,11 @@
 namespace App\Http\Resources\Episode;
 
 use App\Http\Resources\Serie\SerieCollection;
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-class EpisodeCollection extends ResourceCollection
+class EpisodeCollection extends JsonResource
 {
     /**
      * Transform the resource collection into an array.
@@ -15,6 +17,9 @@ class EpisodeCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        $activity = $this->activity()->where('user_id', Auth::id())->first();
+        // $log = DB::getQueryLog();
+        // dump($log);
         return [
             'id' => $this->id,
             'number' => $this->number,
@@ -22,7 +27,7 @@ class EpisodeCollection extends ResourceCollection
             'created_at' => $this->created_at,
             'file_length' => $this->file_length,
             'serie' => new SerieCollection($this->serie),
-            'activity' => null
+            'activity' => new ActivityResource($activity ? $activity->pivot : null)
         ];
     }
 }

@@ -2,11 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Episode\EpisodeCollection;
+use App\Http\Resources\Episode\EpisodeResource;
 use App\Models\Episode;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class EpisodeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +24,7 @@ class EpisodeController extends Controller
      */
     public function index()
     {
-        //
+        return EpisodeCollection::collection(Episode::paginate(10));
     }
 
     /**
@@ -46,7 +56,7 @@ class EpisodeController extends Controller
      */
     public function show(Episode $episode)
     {
-        //
+        return $episode;
     }
 
     /**
@@ -81,5 +91,32 @@ class EpisodeController extends Controller
     public function destroy(Episode $episode)
     {
         //
+    }
+
+    public function activity(Episode $episode, Request $request)
+    {
+        $values = [];
+        $requests = $request->all();
+
+        $id = Auth::id();
+
+        if (array_sum($requests) == 0) {
+            $episode->activity()->detach($id);
+            return response(["data" => $requests], Response::HTTP_ACCEPTED);
+        }
+
+        foreach ($requests as $key => $i) {
+            $values[$key] = $i == 0 ? null : Carbon::now();
+        }
+
+        $toogled = $episode->activity->contains($id);
+
+        if ($toogled) {
+            $episode->activity()->updateExistingPivot($id, $values);
+            return response(["data" => $requests], Response::HTTP_CREATED);
+        } else {
+            $episode->activity()->attach([$id => $values]);
+            return response(["data" => $requests], Response::HTTP_CREATED);
+        }
     }
 }

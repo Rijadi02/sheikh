@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Speaker;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class SpeakerResource extends JsonResource
 {
@@ -19,6 +20,7 @@ class SpeakerResource extends JsonResource
             'name' => $this->name,
             'image' => $this->image,
             'bio' => $this->bio,
+            'subscribed' => $this->subscribed->contains(Auth::id())
         ];
     }
 }

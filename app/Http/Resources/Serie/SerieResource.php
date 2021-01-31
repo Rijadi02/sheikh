@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources\Serie;
 
-use App\Http\Resources\Episode\EpisodeCollection;
+use App\Http\Resources\Episode\EpisodeSerieResource;
 use App\Http\Resources\Speaker\SpeakerCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SerieResource extends JsonResource
 {
@@ -22,10 +24,10 @@ class SerieResource extends JsonResource
             'image' => $this->image,
             'speaker' => new SpeakerCollection($this->speaker),
             'description' => $this->description,
-            'episodes' => new EpisodeCollection($this->episodes),
+            // 'episodes' => EpisodeSerieResource::collection($this->episodes),
             'episodes_count' => $this->episodes->count(),
-            'episodes_length' => $this->episodes->sum('file_length'),
-            'activity' => null
+            // 'episodes_length' => $this->episodes->("DATEDIFF(MINUTE, '0:00:00', file_length)")->toSql(),
+            'subscribed' => $this->subscribed->contains(Auth::id())
         ];
     }
 }

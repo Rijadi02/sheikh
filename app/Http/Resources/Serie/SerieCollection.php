@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\Serie;
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class SerieCollection extends ResourceCollection
+class SerieCollection extends JsonResource
 {
     /**
      * Transform the resource collection into an array.
