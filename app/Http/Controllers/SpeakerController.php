@@ -27,7 +27,7 @@ class SpeakerController extends Controller
      */
     public function index()
     {
-        return SpeakerCollection::collection(Speaker::paginate(10));
+        return SpeakerCollection::collection(Speaker::simplePaginate(10));
     }
 
     /**
@@ -108,18 +108,19 @@ class SpeakerController extends Controller
         return response(null, Response::HTTP_NO_CONTENT);
     }
 
-    public function subscribe($id)
+    public function subscribe(Speaker $speaker)
     {
-        $id = Auth::id();
-        $speaker = Speaker::find($id);
-        $toogled = $speaker->subscribed->contains($id);
+        return $speaker->subscribed()->toggle(Auth::id());
+        // $id = Auth::id();
+        // $speaker = Speaker::find($id);
+        // $toogled = $speaker->subscribed->contains($id);
 
-        if ($toogled) {
-            $speaker->subscribed()->detach($id);
-            return response(null, Response::HTTP_NO_CONTENT);
-        } else {
-            $speaker->subscribed()->attach([$id => ['subscribed' => Carbon::now()]]);
-            return response(["message" => "Succesfully subscribed!"], Response::HTTP_CREATED);
-        }
+        // if ($toogled) {
+        //     $speaker->subscribed()->detach($id);
+        //     return response(null, Response::HTTP_NO_CONTENT);
+        // } else {
+        //     $speaker->subscribed()->attach([$id => ['subscribed' => Carbon::now()]]);
+        //     return response(["message" => "Succesfully subscribed!"], Response::HTTP_CREATED);
+        // }
     }
 }

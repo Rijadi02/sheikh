@@ -27,8 +27,8 @@ class SerieRequest extends FormRequest
             "name" => "required",
             "description" => "required",
             "image" => "required",
-            "speaker_id" => "required",
-            "category_id" => "required"
+            "speaker_id" => "required|integer",
+            "category_id" => "required|integer"
         ];
     }
 }

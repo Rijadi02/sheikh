@@ -2,41 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Serie;
 use App\Http\Resources\Serie\SerieCollection;
 use App\Http\Resources\Serie\SerieResource;
-use App\Models\Serie;
-use Carbon\Carbon;
-use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class SerieController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
 
     public function __construct()
     {
         $this->middleware("auth:api");
     }
-
-    public function index()
-    {
-        return SerieCollection::collection(Serie::paginate(10));
-    }
-
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function index()
     {
-        //
+        return SerieCollection::collection(Serie::simplePaginate(10));
     }
 
     /**
@@ -47,7 +34,19 @@ class SerieController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $serie = new Serie();
+
+        $serie->name = $request->name;
+        $serie->description = $request->description;
+        $serie->image = $request->image;
+        $serie->speaker_id = $request->speaker_id;
+        $serie->category_id = $request->category_id;
+
+        $serie->save();
+
+        return response([
+            'data' => new SerieResource($serie)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -56,37 +55,22 @@ class SerieController extends Controller
      * @param  \App\Models\Serie  $serie
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Serie $serie)
     {
-        return new SerieResource(Serie::find($id));
+        return new SerieResource($serie);
     }
-
 
     public function subscribe(Serie $serie)
     {
-        $id = Auth::id();
-        $toogled = $serie->subscribed->contains($id);
+        return $serie->subscribed()->toggle(Auth::id());
 
-        if ($toogled) {
-            $serie->subscribed()->detach($id);
-            return response(null, Response::HTTP_NO_CONTENT);
-        } else {
-            $serie->subscribed()->attach([$id => ['subscribed' => Carbon::now()]]);
-            return response(["message" => "Succesfully subscribed!"], Response::HTTP_CREATED);
-        }
-    }
-
-
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Serie  $serie
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Serie $serie)
-    {
-        //
+        // if ($toogled) {
+        //     $serie->subscribed()->detach($id);
+        //     return response(null, Response::HTTP_NO_CONTENT);
+        // } else {
+        //     $serie->subscribed()->attach([$id => ['subscribed' => Carbon::now()]]);
+        //     return response(["message" => "Succesfully subscribed!"], Response::HTTP_CREATED);
+        // }
     }
 
     /**
@@ -98,7 +82,8 @@ class SerieController extends Controller
      */
     public function update(Request $request, Serie $serie)
     {
-        //
+        $serie->update($request->all());
+        return response(['data' => new SerieResource($serie)], Response::HTTP_CREATED);
     }
 
     /**
@@ -109,6 +94,7 @@ class SerieController extends Controller
      */
     public function destroy(Serie $serie)
     {
-        //
+        $serie->delete();
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 }

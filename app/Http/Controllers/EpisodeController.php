@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Episode\EpisodeRequest;
 use App\Http\Resources\Episode\EpisodeCollection;
 use App\Http\Resources\Episode\EpisodeResource;
 use App\Models\Episode;
+use App\Models\Serie;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +26,7 @@ class EpisodeController extends Controller
      */
     public function index()
     {
-        return EpisodeCollection::collection(Episode::paginate(10));
+        return EpisodeCollection::collection(Episode::simplePaginate(10));
     }
 
     /**
@@ -43,9 +45,31 @@ class EpisodeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(EpisodeRequest $request)
     {
-        //
+        $episode = new Episode();
+
+        $serie = $request->serie_id;
+
+        $episode->name = $request->name;
+        $episode->serie_id = $serie;
+        $episode->file = $request->file;
+
+        if (!isset($request->number)) {
+            $max = Serie::find($serie)->episodes->max('number');
+            $episode->number = $max ? $max + 1 : 1;
+        } else {
+            $episode->number = $request->number;
+        }
+
+        $episode->file_size = 1.;
+        $episode->file_length = 1.;
+
+        $episode->save();
+
+        return response([
+            'data' => new EpisodeResource($episode)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -56,7 +80,7 @@ class EpisodeController extends Controller
      */
     public function show(Episode $episode)
     {
-        return $episode;
+        return new EpisodeResource($episode);
     }
 
     /**
@@ -79,7 +103,8 @@ class EpisodeController extends Controller
      */
     public function update(Request $request, Episode $episode)
     {
-        //
+        $episode->update($request->all());
+        return response(['data' => new EpisodeResource($episode)], Response::HTTP_CREATED);
     }
 
     /**
@@ -90,7 +115,8 @@ class EpisodeController extends Controller
      */
     public function destroy(Episode $episode)
     {
-        //
+        $episode->delete();
+        return response(null, Response::HTTP_NO_CONTENT);
     }
 
     public function activity(Episode $episode, Request $request)

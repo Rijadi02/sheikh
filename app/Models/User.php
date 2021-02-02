@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function episodes()
     {
-        return $this->belongsToMany(Episode::class);
+        return $this->belongsToMany(Episode::class)->withPivot("watch_later", "download", "history");
     }
 
     public function series()

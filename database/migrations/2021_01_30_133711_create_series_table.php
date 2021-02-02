@@ -20,10 +20,10 @@ class CreateSeriesTable extends Migration
             $table->string('image');
 
             $table->integer('speaker_id')->unsigned();
-            $table->foreign('speaker_id')->references('id')->on('speakers')->ondelete('cascade');
+            $table->foreign('speaker_id')->references('id')->on('speakers')->onDelete('cascade');
 
             $table->integer('category_id')->unsigned();
-            $table->foreign('category_id')->references('id')->on('categories')->ondelete('cascade');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
 
             $table->timestamps();
         });

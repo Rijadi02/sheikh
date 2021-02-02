@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Episode;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,8 +25,9 @@ class EpisodeRequest extends FormRequest
     {
         return [
             "name" => "required",
-            "serie_id" => "required",
-            "file" => "required"
+            "serie_id" => "required|integer",
+            "file" => "required",
+            "number" => "integer"
         ];
     }
 }

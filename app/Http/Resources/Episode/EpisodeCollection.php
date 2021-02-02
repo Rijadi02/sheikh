@@ -18,8 +18,7 @@ class EpisodeCollection extends JsonResource
     public function toArray($request)
     {
         $activity = $this->activity()->where('user_id', Auth::id())->first();
-        // $log = DB::getQueryLog();
-        // dump($log);
+        
         return [
             'id' => $this->id,
             'number' => $this->number,

@@ -10,6 +10,10 @@ class Serie extends Model
 
     use HasFactory;
 
+    protected $fillable = [
+        'name','description','image','category_id'
+    ];
+
     public function episodes()
     {
         return $this->hasMany(Episode::class);
@@ -27,7 +31,7 @@ class Serie extends Model
 
     public function subscribed()
     {
-        return $this->belongsToMany(User::class)->withPivot("subscribed");
+        return $this->belongsToMany(User::class);
     }
 
 

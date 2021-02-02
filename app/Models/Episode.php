@@ -9,6 +9,10 @@ class Episode extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name','file','number'
+    ];
+
     public function serie()
     {
         return $this->belongsTo(Serie::class);

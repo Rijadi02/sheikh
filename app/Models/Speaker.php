@@ -9,6 +9,10 @@ class Speaker extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name','bio','image'
+    ];
+
     public function series()
     {
         return $this->hasMany(Serie::class);
@@ -16,6 +20,6 @@ class Speaker extends Model
 
     public function subscribed()
     {
-        return $this->belongsToMany(User::class)->withPivot("subscribed");
+        return $this->belongsToMany(User::class);
     }
 }

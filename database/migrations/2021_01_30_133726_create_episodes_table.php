@@ -19,7 +19,7 @@ class CreateEpisodesTable extends Migration
             $table->string('name');
 
             $table->integer('serie_id')->unsigned();
-            $table->foreign('serie_id')->references('id')->on("series")->ondelete("cascade");
+            $table->foreign('serie_id')->references('id')->on("series")->onDelete("cascade");
 
             $table->string('file');
             $table->float('file_size');

@@ -17,7 +17,6 @@ class SpeakerUserActivity extends Migration
             $table->id();
             $table->integer('speaker_id')->unsigned();
             $table->integer('user_id')->unsigned();
-            $table->timestamp('subscribed')->nullable();
         });
     }
 
