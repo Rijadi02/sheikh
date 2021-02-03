@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SerieRequest;
+use App\Http\Resources\Episode\EpisodeCollection;
+use App\Http\Resources\Episode\EpisodeSerieResource;
 use App\Models\Serie;
 use App\Http\Resources\Serie\SerieCollection;
 use App\Http\Resources\Serie\SerieResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
 class SerieController extends Controller
@@ -21,9 +25,16 @@ class SerieController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return SerieCollection::collection(Serie::simplePaginate(10));
+        $search = $request->input('search');
+
+        $series = Serie::where('name', 'LIKE', "%{$search}%")
+                ->orWhere('description', 'LIKE', "%{$search}%")
+                ->orderByDesc("updated_at")
+                ->simplePaginate(10);
+
+        return SerieCollection::collection($series);
     }
 
     /**
@@ -32,13 +43,19 @@ class SerieController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(SerieRequest $request)
     {
         $serie = new Serie();
 
         $serie->name = $request->name;
         $serie->description = $request->description;
-        $serie->image = $request->image;
+
+        $uploadFolder = 'series';
+        $image = $request->file('image');
+        $image_uploaded_path = $image->store($uploadFolder, 'public');
+
+        $serie->image = $image_uploaded_path;
+
         $serie->speaker_id = $request->speaker_id;
         $serie->category_id = $request->category_id;
 
@@ -60,18 +77,7 @@ class SerieController extends Controller
         return new SerieResource($serie);
     }
 
-    public function subscribe(Serie $serie)
-    {
-        return $serie->subscribed()->toggle(Auth::id());
 
-        // if ($toogled) {
-        //     $serie->subscribed()->detach($id);
-        //     return response(null, Response::HTTP_NO_CONTENT);
-        // } else {
-        //     $serie->subscribed()->attach([$id => ['subscribed' => Carbon::now()]]);
-        //     return response(["message" => "Succesfully subscribed!"], Response::HTTP_CREATED);
-        // }
-    }
 
     /**
      * Update the specified resource in storage.
@@ -95,6 +101,33 @@ class SerieController extends Controller
     public function destroy(Serie $serie)
     {
         $serie->delete();
+        Storage::disk('public')->delete($serie->image);
         return response(null, Response::HTTP_NO_CONTENT);
+    }
+
+
+    public function subscribe(Serie $serie)
+    {
+        return $serie->subscribed()->toggle(Auth::id());
+
+        // if ($toogled) {
+        //     $serie->subscribed()->detach($id);
+        //     return response(null, Response::HTTP_NO_CONTENT);
+        // } else {
+        //     $serie->subscribed()->attach([$id => ['subscribed' => Carbon::now()]]);
+        //     return response(["message" => "Succesfully subscribed!"], Response::HTTP_CREATED);
+        // }
+    }
+
+    public function episodes(Serie $serie, Request $request)
+    {
+        $search = $request->input('search');
+
+        $episodes = $serie->episodes()
+                ->where('name', 'LIKE', "%{$search}%")
+                ->orderByDesc("updated_at")
+                ->simplePaginate(10);
+
+        return EpisodeSerieResource::collection($episodes);
     }
 }

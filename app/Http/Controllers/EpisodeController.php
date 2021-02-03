@@ -11,7 +11,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
+use wapmorgan\Mp3Info\Mp3Info;
 
 class EpisodeController extends Controller
 {
@@ -24,9 +26,15 @@ class EpisodeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return EpisodeCollection::collection(Episode::simplePaginate(10));
+        $search = $request->input('search');
+
+        $episodes = Episode::orderByDesc("updated_at")
+                ->where('name', 'LIKE', "%{$search}%")
+                ->simplePaginate(10);
+
+        return EpisodeCollection::collection($episodes);
     }
 
     /**
@@ -53,7 +61,14 @@ class EpisodeController extends Controller
 
         $episode->name = $request->name;
         $episode->serie_id = $serie;
-        $episode->file = $request->file;
+
+        $uploadFolder = 'episodes';
+        $file = $request->file('file');
+        $file_uploaded_path = $file->store($uploadFolder, 'public');
+
+        $episode->file = $file_uploaded_path;
+
+        $audio = new Mp3Info(Storage::disk('public')->path($file_uploaded_path));
 
         if (!isset($request->number)) {
             $max = Serie::find($serie)->episodes->max('number');
@@ -62,8 +77,8 @@ class EpisodeController extends Controller
             $episode->number = $request->number;
         }
 
-        $episode->file_size = 1.;
-        $episode->file_length = 1.;
+        $episode->file_size = intval($file->getSize());
+        $episode->file_length = intval($audio->duration);
 
         $episode->save();
 
@@ -116,6 +131,7 @@ class EpisodeController extends Controller
     public function destroy(Episode $episode)
     {
         $episode->delete();
+        Storage::disk('public')->delete($episode->file);
         return response(null, Response::HTTP_NO_CONTENT);
     }
 

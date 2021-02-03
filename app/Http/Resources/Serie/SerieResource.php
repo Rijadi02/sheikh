@@ -7,6 +7,7 @@ use App\Http\Resources\Speaker\SpeakerCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SerieResource extends JsonResource
 {
@@ -21,13 +22,18 @@ class SerieResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image' => $this->image,
+            'image' => Storage::disk('public')->url($this->image),
             'speaker' => new SpeakerCollection($this->speaker),
             'description' => $this->description,
             // 'episodes' => EpisodeSerieResource::collection($this->episodes),
             'episodes_count' => $this->episodes->count(),
-            // 'episodes_length' => $this->episodes->("DATEDIFF(MINUTE, '0:00:00', file_length)")->toSql(),
-            'subscribed' => $this->subscribed->contains(Auth::id())
+            'episodes_length' => $this->time_format($this->episodes->sum('file_length')),
+            'episodes_size' => $this->bytes_format($this->episodes->sum('file_size')),
+            'subscribed' => $this->subscribed->contains(Auth::id()),
+            'href' =>
+            [
+                "episodes" => route("serie.episodes", $this->id)
+            ]
         ];
     }
 }

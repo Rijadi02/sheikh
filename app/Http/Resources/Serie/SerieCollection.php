@@ -19,6 +19,10 @@ class SerieCollection extends JsonResource
             'name' => $this->name,
             'image' => $this->image,
             'speaker' => $this->speaker->name,
+            'href' =>
+            [
+                "serie" => route("series.show", $this->id)
+            ]
         ];
     }
 }

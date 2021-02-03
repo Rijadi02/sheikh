@@ -19,8 +19,12 @@ class EpisodeSerieResource extends JsonResource
             'number' => $this->number,
             'name' => $this->name,
             'created_at' => $this->created_at,
-            'file_length' => $this->file_length,
+            'file_length' =>  $this->time_format($this->file_length),
             'activity' => null,
+            'href' =>
+            [
+                "episode" => route("episodes.show", $this->id)
+            ],
         ];
     }
 }

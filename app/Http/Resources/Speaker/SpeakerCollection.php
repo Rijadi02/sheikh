@@ -17,7 +17,11 @@ class SpeakerCollection extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image' => $this->image
+            'image' => $this->image,
+            'href' =>
+            [
+                "speaker" => route("speakers.show", $this->id)
+            ],
         ];
     }
 }

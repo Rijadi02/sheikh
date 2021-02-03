@@ -26,7 +26,7 @@ class SpeakerRequest extends FormRequest
         return [
             "name" => "required",
             "bio" => "required|max:250",
-            "image" => "required"
+            "image" => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ];
     }
 }

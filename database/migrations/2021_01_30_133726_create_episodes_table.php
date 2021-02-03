@@ -22,8 +22,8 @@ class CreateEpisodesTable extends Migration
             $table->foreign('serie_id')->references('id')->on("series")->onDelete("cascade");
 
             $table->string('file');
-            $table->float('file_size');
-            $table->time('file_length');
+            $table->integer('file_size');
+            $table->integer('file_length');
             $table->timestamps();
         });
     }

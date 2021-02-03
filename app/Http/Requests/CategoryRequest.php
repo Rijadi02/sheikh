@@ -25,7 +25,7 @@ class CategoryRequest extends FormRequest
     {
         return [
             "name" => "required|max:250",
-            "icon" => "required",
+            "icon" => 'image|mimes:svg|max:2048',
             "color" => "required"
         ];
     }

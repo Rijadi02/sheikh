@@ -18,7 +18,7 @@ class EpisodeCollection extends JsonResource
     public function toArray($request)
     {
         $activity = $this->activity()->where('user_id', Auth::id())->first();
-        
+
         return [
             'id' => $this->id,
             'number' => $this->number,
@@ -26,7 +26,11 @@ class EpisodeCollection extends JsonResource
             'created_at' => $this->created_at,
             'file_length' => $this->file_length,
             'serie' => new SerieCollection($this->serie),
-            'activity' => new ActivityResource($activity ? $activity->pivot : null)
+            'activity' => new ActivityResource($activity ? $activity->pivot : null),
+            'href' =>
+            [
+                "episode" => route("episodes.show", $this->id)
+            ],
         ];
     }
 }

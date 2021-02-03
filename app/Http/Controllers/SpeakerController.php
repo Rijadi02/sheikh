@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SpeakerRequest;
+use App\Http\Resources\Serie\SerieCollection;
 use App\Http\Resources\Speaker\SpeakerCollection;
 use App\Http\Resources\Speaker\SpeakerResource;
 use App\Models\Speaker;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
 class SpeakerController extends Controller
@@ -25,9 +27,16 @@ class SpeakerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return SpeakerCollection::collection(Speaker::simplePaginate(10));
+        $search = $request->input('search');
+
+        $episodes = Speaker::orderByDesc("updated_at")
+                ->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('bio', 'LIKE', "%{$search}%")
+                ->simplePaginate(10);
+
+        return SpeakerCollection::collection($episodes);
     }
 
     /**
@@ -52,7 +61,12 @@ class SpeakerController extends Controller
 
         $speaker->name = $request->name;
         $speaker->bio = $request->bio;
-        $speaker->image = $request->image;
+
+        $uploadFolder = 'speakers';
+        $image = $request->file('image');
+        $image_uploaded_path = $image->store($uploadFolder, 'public');
+
+        $speaker->image = $image_uploaded_path;
 
         $speaker->save();
 
@@ -105,22 +119,31 @@ class SpeakerController extends Controller
     public function destroy(Speaker $speaker)
     {
         $speaker->delete();
+        Storage::disk('public')->delete($speaker->image);
         return response(null, Response::HTTP_NO_CONTENT);
     }
 
     public function subscribe(Speaker $speaker)
     {
         return $speaker->subscribed()->toggle(Auth::id());
-        // $id = Auth::id();
-        // $speaker = Speaker::find($id);
-        // $toogled = $speaker->subscribed->contains($id);
+    }
 
-        // if ($toogled) {
-        //     $speaker->subscribed()->detach($id);
-        //     return response(null, Response::HTTP_NO_CONTENT);
-        // } else {
-        //     $speaker->subscribed()->attach([$id => ['subscribed' => Carbon::now()]]);
-        //     return response(["message" => "Succesfully subscribed!"], Response::HTTP_CREATED);
-        // }
+    public function series(Speaker $speaker, Request $request)
+    {
+        global $search;
+        $search = $request->input('search');
+
+        $series = $speaker->series()
+                ->where(
+                    function ($query) {
+                        global $search;
+                        $query->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('description', 'LIKE', "%{$search}%");
+                    }
+                )
+                ->orderByDesc("updated_at")
+                ->simplePaginate(10);
+
+        return SerieCollection::collection($series);
     }
 }

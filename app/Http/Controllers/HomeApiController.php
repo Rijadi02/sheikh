@@ -30,7 +30,7 @@ class HomeApiController extends Controller
     public function episodes()
     {
         $series = Auth::user()->series->pluck('id');
-        $episodes =Episode::whereIn("serie_id", $series)
+        $episodes = Episode::whereIn("serie_id", $series)
                 ->orderByDesc("updated_at")
                 ->simplePaginate(10);
         return EpisodeCollection::collection($episodes);

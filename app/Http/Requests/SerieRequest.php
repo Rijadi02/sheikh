@@ -26,7 +26,7 @@ class SerieRequest extends FormRequest
         return [
             "name" => "required",
             "description" => "required",
-            "image" => "required",
+            "image" => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             "speaker_id" => "required|integer",
             "category_id" => "required|integer"
         ];

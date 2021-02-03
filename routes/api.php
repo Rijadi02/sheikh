@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EpisodeController;
 use App\Http\Controllers\HomeApiController;
@@ -21,17 +23,37 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+Route::post('user/register', [RegisterController::class, "create_api"]);
+
+Route::group(['prefix' => 'user'], function () {
+    Route::post('register', [RegisterController::class, "create_api"]);
+    Route::post('password/forgot', [ForgotPasswordController::class, "sendResetLinkEmail"]);
+});
+
 
 Route::apiResource('/categories',CategoryController::class);
+Route::group(['prefix' => 'categories'], function () {
+    Route::get('{category}/speakers', [CategoryController::class, "speakers"])->name('speaker.speakers');;
+    Route::get('{category}/series', [CategoryController::class, "series"])->name('speaker.series');
+});
+
 
 Route::apiResource('/speakers', SpeakerController::class);
-Route::get('/speakers/{speaker}/subscribe', [SpeakerController::class, "subscribe"]);
+Route::group(['prefix' => 'speakers'], function () {
+    Route::put('{speaker}/subscribe', [SpeakerController::class, "subscribe"]);
+    Route::get('{speaker}/series', [SpeakerController::class, "series"])->name('speaker.series');
+});
 
 Route::apiResource('/episodes', EpisodeController::class);
 Route::post('/episodes/{episode}/activity', [EpisodeController::class, "activity"]);
 
-Route::apiResource('/series', SerieController::class)->parameters(['series' => 'serie']);;
-Route::get('/series/{serie}/subscribe', [SerieController::class, "subscribe"]);
+Route::apiResource('series', SerieController::class)->parameters(['series' => 'serie']);
+Route::group(['prefix' => 'series'], function () {
+    Route::put('{serie}/subscribe', [SerieController::class, "subscribe"]);
+    Route::get('{serie}/episodes', [SerieController::class, "episodes"])->name('serie.episodes');
+});
+
+
 
 
 Route::group(['prefix' => 'home'], function () {
