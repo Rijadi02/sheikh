@@ -1,4 +1,4 @@
-RewriteCond %{HTTP_HOST} ^tachyondev.tech$ [NC,OR]
-RewriteCond %{HTTP_HOST} ^www.tachyondev.tech$
-RewriteCond %{REQUEST_URI} !sheikh/public/
-RewriteRule (.*) /sheikh/public/$1 [L]
+RewriteCond %{HTTP_HOST} ^sheikh.tachyondev.tech$ [NC,OR]
+RewriteCond %{HTTP_HOST} ^sheikh.tachyondev.tech$
+RewriteCond %{REQUEST_URI} !public/
+RewriteRule (.*) /public/$1 [L]
