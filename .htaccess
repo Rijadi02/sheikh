@@ -1,0 +1,4 @@
+RewriteCond %{HTTP_HOST} ^tachyondev.tech$ [NC,OR]
+RewriteCond %{HTTP_HOST} ^sheikh.tachyondev.tech$
+RewriteCond %{REQUEST_URI} !sheikh/public/
+RewriteRule (.*) /sheikh/public/$1 [L]
