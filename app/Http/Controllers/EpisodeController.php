@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 use wapmorgan\Mp3Info\Mp3Info;
+use YoutubeDl\Options;
+use YoutubeDl\YoutubeDl;
 
 class EpisodeController extends Controller
 {
@@ -63,12 +65,49 @@ class EpisodeController extends Controller
         $episode->serie_id = $serie;
 
         $uploadFolder = 'episodes';
-        $file = $request->file('file');
-        $file_uploaded_path = $file->store($uploadFolder, 'public');
 
-        $episode->file = $file_uploaded_path;
+        $audio = null;
 
-        $audio = new Mp3Info(Storage::disk('public')->path($file_uploaded_path));
+        if($request->hasFile('audio'))
+        {
+            $file = $request->file('audio');
+            $file_uploaded_path = $file->store($uploadFolder, 'public');
+
+            $episode->file = $file_uploaded_path;
+
+            $audio = new Mp3Info(Storage::disk('public')->path($file_uploaded_path));
+        }else if($request->hasFile('video'))
+        {
+            $unique_name = md5($request->file('video')->getClientOriginalName() . time());
+            $name = $uploadFolder."/". $unique_name . ".mp3";
+
+
+            \FFMpeg\FFMpeg::open($request->file('video'))
+                ->export()
+                ->toDisk($uploadFolder)
+                ->inFormat(new \FFMpeg\Format\Audio\MP3)
+                ->save($unique_name . ".mp3");
+
+            $episode->file = $name;
+
+            $audio = new Mp3Info(Storage::disk('public')->path($name));
+            return $name;
+        }else
+        {
+            $dl = new YoutubeDl(['extract-audio' => true,
+                'audio-format' => 'mp3',
+                'audio-quality' => 0, // best
+                'output' => '%(title)s.%(ext)s',
+            ]);
+            $dl->setDownloadPath(Storage::disk('public')->path($uploadFolder));
+
+            $dl->setPythonPath("C:/Python27/python");
+            $dl->setBinPath(Storage::disk('public')->path("bin/youtube-dl.exe"));
+
+            $video = $dl->download($request->link);
+            return $video;
+        }
+
 
         if (!isset($request->number)) {
             $max = Serie::find($serie)->episodes->max('number');

@@ -26,7 +26,9 @@ class EpisodeRequest extends FormRequest
         return [
             "name" => "required",
             "serie_id" => "required|integer",
-            "file" => "required|mimes:application/octet-stream,audio/mpeg,mpga,mp3,wav",
+            "audio" => "mimes:application/octet-stream,audio/mpeg,mpga,mp3,wav|required_without_all:video,link",
+            "video" => "mimes:mp4,mov,ogg,qt|max:20000|required_without_all:audio,link",
+            "link" => "required_without_all:video,audio",
             "number" => "integer"
         ];
     }

@@ -33,8 +33,8 @@ Route::group(['prefix' => 'user'], function () {
 
 Route::apiResource('/categories',CategoryController::class);
 Route::group(['prefix' => 'categories'], function () {
-    Route::get('{category}/speakers', [CategoryController::class, "speakers"])->name('speaker.speakers');;
-    Route::get('{category}/series', [CategoryController::class, "series"])->name('speaker.series');
+    Route::get('{category}/speakers', [CategoryController::class, "speakers"])->name('category.speakers');;
+    Route::get('{category}/series', [CategoryController::class, "series"])->name('category.series');
 });
 
 
@@ -45,7 +45,7 @@ Route::group(['prefix' => 'speakers'], function () {
 });
 
 Route::apiResource('/episodes', EpisodeController::class);
-Route::post('/episodes/{episode}/activity', [EpisodeController::class, "activity"]);
+Route::patch('/episodes/{episode}/activity', [EpisodeController::class, "activity"]);
 
 Route::apiResource('series', SerieController::class)->parameters(['series' => 'serie']);
 Route::group(['prefix' => 'series'], function () {

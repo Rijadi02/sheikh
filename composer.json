@@ -15,6 +15,8 @@
         "laravel/framework": "^8.12",
         "laravel/passport": "^10.1",
         "laravel/tinker": "^2.5",
+        "norkunas/youtube-dl-php": "^1.6",
+        "pbmedia/laravel-ffmpeg": "^7.5",
         "wapmorgan/mp3info": "^0.0.5"
     },
     "require-dev": {
